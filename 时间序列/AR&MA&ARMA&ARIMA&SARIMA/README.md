@@ -1,6 +1,4 @@
 # AR/MA/ARMA/ARIMA/SARIMA Family
-# 
-
 ```text
 arima_family/
 ├── readme/
