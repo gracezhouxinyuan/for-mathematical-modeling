@@ -1,4 +1,4 @@
-#AR/MA/ARMA/ARIMA/SARIMA Family
+# AR/MA/ARMA/ARIMA/SARIMA Family
 # 
 
 ```text
