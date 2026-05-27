@@ -1,0 +1,2 @@
+name,dimension,lower_bound,upper_bound,optimum
+rastrigin,2,-5.12,5.12,0
