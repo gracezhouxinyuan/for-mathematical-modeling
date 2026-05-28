@@ -1,0 +1,6 @@
+task,parameter,value
+pi_estimation,sample_size,10000
+integral_estimation,sample_size,10000
+integral_estimation,lower_bound,0
+integral_estimation,upper_bound,1
+integral_estimation,integrand,exp(-x^2)

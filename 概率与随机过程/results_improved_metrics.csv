@@ -1,0 +1,3 @@
+﻿method,sample_size,estimate
+stratified_pi,10000,3.1392
+control_variate_integral,10000,0.7472189046661367
