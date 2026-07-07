@@ -12,7 +12,6 @@
 | **DBSCAN** | 聚类 | 密度聚类，任意形状 | 异常点检测，不规则聚类 | ⭐⭐ |
 | **随机森林** | 分类/回归 | 集成学习，高精度 | 特征重要性，分类 | ⭐⭐⭐ |
 | **GMM** | 聚类 | 概率模型，软聚类 | 概率分布，不确定性 | ⭐⭐⭐ |
-| **XGBoost** | 分类/回归 | 梯度提升，超强 | 竞赛分类，精准预测 | ⭐⭐⭐⭐ |
 
 ---
 
@@ -216,9 +215,12 @@ $$s.t. \quad y_i(w^T\phi(x_i) + b) \geq 1 - \xi_i$$
 - **φ(x)**: 核函数映射
 
 **常用核函数：**
-- 线性核：$K(x_i, x_j) = x_i^T x_j$
-- RBF核：$K(x_i, x_j) = \exp(-\gamma||x_i - x_j||^2)$
-- 多项式核：$K(x_i, x_j) = (x_i^T x_j + c)^d$
+- 线性核：
+  $$K(x_i, x_j) = x_i^T x_j$$
+- RBF核：
+  $$K(x_i, x_j) = \exp(-\gamma||x_i - x_j||^2)$$
+- 多项式核：
+  $$K(x_i, x_j) = (x_i^T x_j + c)^d$$
 
 ### Python实现
 
@@ -367,39 +369,6 @@ plt.show()
 
 ---
 
-## 7. XGBoost分类
-
-XGBoost既可用于回归也可用于分类。详见[优化类README]或预测类README的XGBoost部分。
-
-### 分类用例
-
-```python
-import xgboost as xgb
-from sklearn.metrics import accuracy_score
-
-# 数据准备
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-
-# XGBoost分类
-params = {
-    'objective': 'binary:logistic',  # 二分类
-    'max_depth': 5,
-    'learning_rate': 0.1,
-    'subsample': 0.8
-}
-
-dtrain = xgb.DMatrix(X_train, label=y_train)
-dtest = xgb.DMatrix(X_test, label=y_test)
-
-model = xgb.train(params, dtrain, num_boost_round=100)
-y_pred = (model.predict(dtest) > 0.5).astype(int)
-
-accuracy = accuracy_score(y_test, y_pred)
-print(f"准确率: {accuracy:.4f}")
-```
-
----
-
 ## 算法对比与选择
 
 | 算法 | 有标签 | 数据量 | 速度 | 精准度 | 可解释性 | 国赛频率 |
@@ -410,7 +379,6 @@ print(f"准确率: {accuracy:.4f}")
 | SVM | ✓ | 中等 | 中 | 高 | 低 | ⭐⭐⭐ |
 | 随机森林 | ✓ | 大 | 快 | 很高 | 中 | ⭐⭐⭐⭐ |
 | GMM | ✗ | 中等 | 快 | 中 | 中 | ⭐ |
-| XGBoost | ✓ | 大 | 快 | 很高 | 低 | ⭐⭐⭐⭐ |
 
 ---
 
