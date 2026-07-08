@@ -9,9 +9,6 @@
 | **KMeans** | 聚类 | 无监督，快速 | 初步分组，聚类 | ⭐ |
 | **层次聚类** | 聚类 | 树状结构，多粒度 | 聚类树，分层分析 | ⭐⭐ |
 | **SVM** | 分类 | 最大间隔，非线性 | 二分类，高维数据 | ⭐⭐⭐ |
-| **DBSCAN** | 聚类 | 密度聚类，任意形状 | 异常点检测，不规则聚类 | ⭐⭐ |
-| **随机森林** | 分类/回归 | 集成学习，高精度 | 特征重要性，分类 | ⭐⭐⭐ |
-| **GMM** | 聚类 | 概率模型，软聚类 | 概率分布，不确定性 | ⭐⭐⭐ |
 
 ---
 
@@ -141,65 +138,9 @@ clusters = fcluster(Z, t=15, criterion='distance')
 
 ---
 
-## 3. DBSCAN（密度聚类）
-
-### 原理简介
-
-基于**样本密度**的聚类，能识别任意形状的簇并找出异常点。
-
-**核心概念：**
-- **核心点**：eps邻域内至少包含min_samples个样本
-- **边界点**：不是核心点，但在某核心点的eps邻域内
-- **噪声点**：既不是核心点也不是边界点
-
-### Python实现
-
-```python
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
-
-# 数据标准化
-X_scaled = StandardScaler().fit_transform(X)
-
-# DBSCAN聚类
-dbscan = DBSCAN(eps=0.5, min_samples=5)
-labels = dbscan.fit_predict(X_scaled)
-
-# 绘图
-plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', s=50)
-plt.title('DBSCAN聚类')
-plt.show()
-
-# 异常点（标签为-1）
-n_noise = np.sum(labels == -1)
-print(f"异常点数: {n_noise}")
-```
-
-### 参数调优
-
-```python
-from sklearn.neighbors import NearestNeighbors
-
-# K距离图找eps值
-neighbors = NearestNeighbors(n_neighbors=5)
-neighbors_fit = neighbors.fit(X_scaled)
-distances, indices = neighbors_fit.kneighbors(X_scaled)
-distances = np.sort(distances[:, -1], axis=0)
-
-plt.figure(figsize=(10, 6))
-plt.plot(distances)
-plt.xlabel('样本排序')
-plt.ylabel('第5邻近距离')
-plt.title('K距离图（找eps的"肘部"）')
-plt.grid(True)
-plt.show()
-```
-
----
-
 ## 第二部分：分类算法
 
-## 4. SVM（支持向量机）
+## 3. SVM（支持向量机）
 
 ### 原理简介
 
@@ -268,117 +209,13 @@ print(f"最优得分: {grid_search.best_score_:.4f}")
 
 ---
 
-## 5. 随机森林（Random Forest）
-
-### 原理
-
-集成多个决策树的预测结果（投票/平均），具有**高精度和强鲁棒性**。
-
-**优点：**
-- 自动处理非线性关系
-- 可获得特征重要性
-- 并行化程度高
-- 抗过拟合能力强
-
-### Python实现
-
-```python
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, roc_curve
-
-# 随机森林分类
-rf = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
-rf.fit(X_train, y_train)
-
-# 预测
-y_pred = rf.predict(X_test)
-y_pred_proba = rf.predict_proba(X_test)
-
-# 特征重要性
-importances = rf.feature_importances_
-feature_names = [f'Feature {i}' for i in range(X.shape[1])]
-indices = np.argsort(importances)[::-1]
-
-plt.figure(figsize=(10, 6))
-plt.bar(range(X.shape[1]), importances[indices])
-plt.xticks(range(X.shape[1]), [feature_names[i] for i in indices], rotation=45)
-plt.title('特征重要性')
-plt.tight_layout()
-plt.show()
-
-# ROC曲线
-fpr, tpr, _ = roc_curve(y_test, y_pred_proba[:, 1])
-auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-plt.plot(fpr, tpr, label=f'AUC={auc:.3f}')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.legend()
-plt.show()
-```
-
----
-
-## 6. GMM（高斯混合模型）
-
-### 原理
-
-用**多个高斯分布的加权组合**来建模数据分布，是**概率聚类**方法。
-
-$$p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x|\mu_k, \Sigma_k)$$
-
-其中：
-- $\pi_k$: 第k个分量的权重
-- $\mathcal{N}$: 高斯分布
-- $\mu_k, \Sigma_k$: 第k个分量的均值和协方差
-
-### Python实现
-
-```python
-from sklearn.mixture import GaussianMixture
-
-# 拟合GMM
-gmm = GaussianMixture(n_components=3, covariance_type='full', random_state=42)
-gmm.fit(X)
-
-# 聚类分配
-labels = gmm.predict(X)
-
-# 获得柔性聚类概率
-proba = gmm.predict_proba(X)
-
-# BIC与AIC准则选择最优K
-bics = []
-aics = []
-K_range = range(1, 10)
-
-for k in K_range:
-    gmm_k = GaussianMixture(n_components=k, random_state=42)
-    gmm_k.fit(X)
-    bics.append(gmm_k.bic(X))
-    aics.append(gmm_k.aic(X))
-
-plt.figure()
-plt.plot(K_range, bics, 'o-', label='BIC')
-plt.plot(K_range, aics, 's-', label='AIC')
-plt.xlabel('K（分量数）')
-plt.ylabel('信息准则')
-plt.legend()
-plt.grid(True)
-plt.show()
-```
-
----
-
 ## 算法对比与选择
 
 | 算法 | 有标签 | 数据量 | 速度 | 精准度 | 可解释性 | 国赛频率 |
 |------|------|------|------|------|--------|--------|
 | KMeans | ✗ | 中等 | 快 | 中 | 高 | ⭐⭐⭐ |
 | 层次聚类 | ✗ | 小 | 中 | 中 | 高 | ⭐⭐ |
-| DBSCAN | ✗ | 中等 | 中 | 中 | 中 | ⭐⭐ |
 | SVM | ✓ | 中等 | 中 | 高 | 低 | ⭐⭐⭐ |
-| 随机森林 | ✓ | 大 | 快 | 很高 | 中 | ⭐⭐⭐⭐ |
-| GMM | ✗ | 中等 | 快 | 中 | 中 | ⭐ |
 
 ---
 
